@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Runs the real API against a real PostgreSQL in Docker (Testcontainers). Requires Docker. -->
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Testcontainers.PostgreSql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SchoolMs.Api\SchoolMs.Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The same role setup as local development, so tests run under real RLS conditions. -->
+    <None Include="..\..\..\infra\postgres\init\*.sql" Link="postgres-init\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

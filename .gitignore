@@ -1,0 +1,17 @@
+# .NET
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+.vs/
+
+# Editors / OS
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local environment files (never commit secrets)
+.env
+.env.*
+!.env.example

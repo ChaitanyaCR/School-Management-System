@@ -1,0 +1,79 @@
+# Local development stack. Credentials below are for local use only; real environments take them from
+# their own secret store (see docs/02-PROJECT-PLAN.md §2.5).
+#
+#   docker compose up --build                 full stack → http://demo.localhost:8080
+#   docker compose up -d postgres mailpit     dependencies only, when running API/web natively
+#   docker compose down -v                    also deletes the database (needed after changing infra/postgres/init)
+
+name: schoolms
+
+x-api: &api
+  build:
+    context: .
+    dockerfile: infra/docker/api.Dockerfile
+  image: schoolms-api:local
+  environment: &api-env
+    ASPNETCORE_ENVIRONMENT: Development
+    # The application role: row-level security always applies (ADR-0002).
+    ConnectionStrings__Database: Host=postgres;Port=5432;Database=schoolms;Username=schoolms_app;Password=app_dev
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: schoolms
+      POSTGRES_USER: schoolms
+      POSTGRES_PASSWORD: schoolms_dev
+    ports:
+      # Host port 5433 avoids clashing with a locally installed PostgreSQL on 5432.
+      - '127.0.0.1:5433:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Creates the migrator and application roles on first start.
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U schoolms -d schoolms']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Catches all outgoing email in development: UI at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - '127.0.0.1:8025:8025'
+      - '127.0.0.1:1025:1025'
+
+  # One-off: applies migrations as the migrator role and seeds the demo organisation, then exits.
+  migrate:
+    <<: *api
+    command: ['migrate', 'seed-demo']
+    environment:
+      <<: *api-env
+      ConnectionStrings__Migrations: Host=postgres;Port=5432;Database=schoolms;Username=schoolms_migrator;Password=migrator_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *api
+    environment:
+      <<: *api-env
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: 'true'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    environment:
+      API_UPSTREAM: api:8080
+    ports:
+      - '127.0.0.1:8080:80'
+    depends_on:
+      - api
+
+volumes:
+  postgres-data:

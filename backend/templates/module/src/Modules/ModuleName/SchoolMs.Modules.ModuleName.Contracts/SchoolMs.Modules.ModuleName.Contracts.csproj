@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Public API of the ModuleName module: interfaces, DTOs and integration events that other modules may use.
+    May depend only on SharedKernel and other Contracts projects (enforced by architecture tests).
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\SchoolMs.SharedKernel\SchoolMs.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>

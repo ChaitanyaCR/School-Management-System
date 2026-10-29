@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SchoolMs.Api/SchoolMs.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/SchoolMs.Infrastructure/SchoolMs.Infrastructure.csproj" />
+    <Project Path="src/BuildingBlocks/SchoolMs.SharedKernel/SchoolMs.SharedKernel.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Tenancy/">
+    <Project Path="src/Modules/Tenancy/SchoolMs.Modules.Tenancy.Contracts/SchoolMs.Modules.Tenancy.Contracts.csproj" />
+    <Project Path="src/Modules/Tenancy/SchoolMs.Modules.Tenancy/SchoolMs.Modules.Tenancy.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SchoolMs.ArchitectureTests/SchoolMs.ArchitectureTests.csproj" />
+    <Project Path="tests/SchoolMs.IntegrationTests/SchoolMs.IntegrationTests.csproj" />
+    <Project Path="tests/SchoolMs.Modules.Tenancy.UnitTests/SchoolMs.Modules.Tenancy.UnitTests.csproj" />
+    <Project Path="tests/SchoolMs.SharedKernel.UnitTests/SchoolMs.SharedKernel.UnitTests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,38 @@
+# SITE_ADDRESS defaults to plain HTTP on :80 for local use.
+# In production set it to the real domains (e.g. "app.example.in, *.app.example.in") and Caddy
+# obtains and renews TLS certificates automatically (wildcards need a DNS challenge, see Phase 8).
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	handle /api/* {
+		reverse_proxy {$API_UPSTREAM:api:8080}
+	}
+
+	handle /health/* {
+		reverse_proxy {$API_UPSTREAM:api:8080}
+	}
+
+	# Vite fingerprints asset file names, so they can be cached forever.
+	handle /assets/* {
+		root * /srv
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Single-page app: unknown paths fall back to index.html. Revalidate on every load so a deploy
+	# takes effect immediately (the hashed assets it references are cached separately above).
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		header Cache-Control "no-cache"
+		file_server
+	}
+}

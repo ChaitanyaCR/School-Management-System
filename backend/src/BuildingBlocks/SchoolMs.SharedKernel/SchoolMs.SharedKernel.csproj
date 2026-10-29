@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Pure domain primitives. Must not reference ASP.NET Core, EF Core or any module. -->
+
+</Project>

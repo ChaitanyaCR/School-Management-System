@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "SchoolMs",
+  "classifications": ["SchoolMs", "Module"],
+  "identity": "SchoolMs.Module",
+  "name": "SchoolMs business module",
+  "shortName": "schoolms-module",
+  "description": "A business module: implementation project, public Contracts project and unit-test project.",
+  "sourceName": "ModuleName",
+  "preferNameDirectory": false,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "moduleSlug": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "name",
+        "toLower": true
+      },
+      "replaces": "module-slug"
+    }
+  }
+}
