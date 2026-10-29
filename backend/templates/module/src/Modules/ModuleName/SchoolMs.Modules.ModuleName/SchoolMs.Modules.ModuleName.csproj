@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Folders: Domain/ (entities, rules), Application/ (use-case handlers), Infrastructure/ (DbContext, queries),
+    Endpoints/ (HTTP). Other modules may only reference SchoolMs.Modules.ModuleName.Contracts.
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\SchoolMs.Infrastructure\SchoolMs.Infrastructure.csproj" />
+    <ProjectReference Include="..\SchoolMs.Modules.ModuleName.Contracts\SchoolMs.Modules.ModuleName.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SchoolMs.Modules.ModuleName.UnitTests" />
+  </ItemGroup>
+
+</Project>

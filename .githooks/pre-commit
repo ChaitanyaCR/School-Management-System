@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+# Fast checks on staged files only; CI runs the full suite.
+# Enabled by `make setup` (git config core.hooksPath .githooks). Bypass in an emergency with --no-verify.
+set -eu
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+
+backend_cs=$(echo "$staged" | grep -E '^backend/.*\.cs$' | sed 's|^backend/||' || true)
+if [ -n "$backend_cs" ]; then
+  echo "pre-commit: dotnet format (staged C# files)"
+  # shellcheck disable=SC2086 # word splitting is intended: one argument per file
+  (cd backend && dotnet format SchoolMs.slnx --verify-no-changes --include $backend_cs)
+fi
+
+frontend_files=$(echo "$staged" | grep -E '^frontend/.*\.(ts|tsx|js|json|css|html|md)$' | sed 's|^frontend/||' || true)
+if [ -n "$frontend_files" ]; then
+  echo "pre-commit: prettier + eslint (staged frontend files)"
+  # shellcheck disable=SC2086
+  (cd frontend && npx prettier --check $frontend_files)
+  frontend_code=$(echo "$frontend_files" | grep -E '\.(ts|tsx|js)$' || true)
+  if [ -n "$frontend_code" ]; then
+    # shellcheck disable=SC2086
+    (cd frontend && npx eslint --no-warn-ignored $frontend_code)
+  fi
+fi

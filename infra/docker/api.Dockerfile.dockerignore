@@ -1,0 +1,8 @@
+**
+!.editorconfig
+!backend/global.json
+!backend/Directory.Build.props
+!backend/Directory.Packages.props
+!backend/src/**
+**/bin
+**/obj

@@ -27,7 +27,7 @@
 | **Excel / CSV** | ClosedXML · CsvHelper | Imports and exports. Permissive licences. |
 | **API contract** | Microsoft.AspNetCore.OpenApi (OpenAPI 3.1) + Scalar UI | Built into .NET. The frontend TypeScript client is generated from it (orval). |
 | **Logging & telemetry** | Serilog (JSON) + OpenTelemetry · Sentry SDK (or self-hosted GlitchTip) | Request/tenant IDs in every log line. Vendor-neutral. |
-| **Testing** | xUnit v3, **Testcontainers** (real PostgreSQL), WebApplicationFactory, Respawn, Shouldly, NSubstitute, Bogus, ArchUnitNET | Tests run against real Postgres, so RLS and query filters are exercised for real. Architecture tests enforce module boundaries. |
+| **Testing** | xUnit v3 on Microsoft.Testing.Platform, **Testcontainers** (real PostgreSQL), WebApplicationFactory, Respawn, Shouldly, NSubstitute, Bogus | Tests run against real Postgres, so RLS and query filters are exercised for real. Architecture tests (reflection-based) enforce module boundaries. |
 | **Code quality** | Nullable reference types, Roslyn analyzers, warnings-as-errors, `dotnet format`, `.editorconfig` | Catches problems at build time. |
 
 > **Licensing watch.** Several popular .NET libraries moved to commercial licences in 2025: **MediatR, AutoMapper, MassTransit v9+, FluentAssertions v8+**, and QuestPDF above a revenue threshold. You plan to sell this product, so the stack avoids them: plain handler classes instead of MediatR, Mapperly instead of AutoMapper, Shouldly instead of FluentAssertions, and Gotenberg instead of QuestPDF. Every new package gets a licence check (see Definition of Done).
@@ -36,7 +36,7 @@
 
 | Layer | Choice | Why |
 |---|---|---|
-| **Frontend** | **React 18 + TypeScript + Vite** | SPA suits an authenticated dashboard app (no SEO needs). |
+| **Frontend** | **React 19 + TypeScript 6 + Vite** | SPA suits an authenticated dashboard app (no SEO needs). |
 | **UI kit** | Tailwind CSS + shadcn/ui | Accessible, consistent components with no vendor lock-in. |
 | **Data/forms** | TanStack Query, TanStack Router, React Hook Form + Zod | Server-state caching, type-safe routing, validated forms. |
 | **Grids** | TanStack Table (+ custom keyboard nav for marks entry) | Needed for the spreadsheet-like marks grid. |
@@ -55,9 +55,10 @@
 ## 2. Architecture
 
 ### 2.1 Style: Modular Monolith
+
 One deployable backend split into **bounded modules** (one C# project each) with explicit contracts between them. This gives microservice-like boundaries without the operational cost. A module can be extracted later if it ever needs independent scaling (e.g. PDF generation).
 
-```
+```text
 ┌──────────────────────────── Browser (React SPA) ────────────────────────────┐
 │  <org>.yourdomain.in                                                        │
 └───────────────────────────────┬─────────────────────────────────────────────┘
@@ -77,6 +78,7 @@ One deployable backend split into **bounded modules** (one C# project each) with
 ```
 
 ### 2.2 Multi-Tenancy Strategy
+
 **Shared database, shared schema, `organisation_id` on every tenant-owned table.**
 
 1. **Resolve** the tenant from the subdomain in middleware, and reject requests for unknown or suspended tenants. The resolver is pluggable: subdomain (default), custom domain (R4 white-label), or org code at login (fallback for hosts without wildcard DNS).
@@ -127,6 +129,7 @@ erDiagram
 ```
 
 Key design points:
+
 - **Attendance, marks and results hang off `ENROLMENT`, not `STUDENT`**. This keeps every year's history intact through promotions and transfers.
 - **Shared vs branch-owned**: the year, calendar, classes, subjects and assessment schemes belong to the organisation. Sections and everything below them belong to a branch.
 
@@ -148,13 +151,14 @@ The app is a set of Docker containers (API, Hangfire worker, Gotenberg, Caddy) p
 **Recommendation:** run the pilot on a VPS (cheapest, and fine at pilot scale), then move the database to a managed service once you have paying schools. On a self-managed VPS **you** own patching, backups and security hardening. Phase 8 covers these with scripts and runbooks.
 
 **Product name & domain (deferred).** Each school group gets its own web address, e.g. `greenwood.<yourproduct>.in`. That needs a product name and a registered domain, but **not until Phase 8**. Until then:
+
 - Development uses `*.localhost` (e.g. `demo.localhost:8000`), which works without DNS setup.
 - The name, base domain and logo are config values (`PRODUCT_NAME`, `BASE_DOMAIN`), so picking a name later is a one-line change.
 - Before buying a domain, check the name on the IP India trademark search and for `.in` / `.com` availability.
 
 ### 2.6 Board Extensibility
 
-```
+```text
 backend/src/Modules/Boards/Profiles/
 └── cbse/
     ├── profile.yaml            # metadata, version
@@ -175,6 +179,7 @@ backend/src/Modules/Boards/Profiles/
 ### 2.7 Period-Attendance Data Design
 
 At design load, period attendance produces ~26M entries per year (NFR-PRF-06), so it needs deliberate design:
+
 - One `ATTENDANCE_SESSION` row per section × date × period (who marked it, when, lock state). The entries under it hold one status per student.
 - `DAILY_ATTENDANCE` is **derived** (ATT-10) and recomputed whenever a session for that day changes, so registers and report cards never scan raw period data.
 - Rankings and awards (ATT-12) read from a **pre-aggregated per-enrolment summary** (periods attended/total, days present, lates), updated incrementally.
@@ -182,7 +187,7 @@ At design load, period attendance produces ~26M entries per year (NFR-PRF-06), s
 
 ### 2.4 Repository Layout (monorepo)
 
-```
+```text
 School-Management-System/
 ├── backend/
 │   ├── SchoolMs.slnx
@@ -227,6 +232,7 @@ School-Management-System/
 ```
 
 **Module rules** (enforced by architecture tests):
+
 - A module references other modules **only through their `.Contracts` project**. It never touches their entities or database tables.
 - Each module has its own `DbContext` and its own PostgreSQL schema (e.g. `students.student`) in one shared database. Cross-module data is referenced by ID.
 - Cross-module side effects use in-process domain events (e.g. `StudentEnrolled` → Attendance creates the summary row).
@@ -237,7 +243,8 @@ School-Management-System/
 
 ## 3. Engineering Standards
 
-**Definition of Done (every feature/PR)**
+### Definition of Done (every feature/PR)
+
 - [ ] Requirement IDs referenced in the PR (e.g. `Implements SIS-06, SIS-07`)
 - [ ] DB migration is backward-compatible
 - [ ] Permission checks on every endpoint, plus tests for allowed and denied access
@@ -249,7 +256,8 @@ School-Management-System/
 - [ ] Any new package has a licence check (permissive or LGPL only; nothing commercial)
 - [ ] CI green: `dotnet build` (analyzers, warnings-as-errors), `dotnet format`, eslint, tsc, tests, security scans
 
-**Workflow**
+### Workflow
+
 - `main` is always deployable. One feature branch per unit of work, merged via PR.
 - Conventional commits. Semantic versioning per release.
 - Each phase ends with a deploy to **staging** and a demo/checklist review.
@@ -275,12 +283,17 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 | | **Total** | **~21–27 wk** | |
 
 **Pilot-school strategy.** The school will commit only after seeing the product, so the demo comes **after Phase 4**, not at the end:
+
 - By then they can see real setup, student records and timetables on a branded demo instance, using **synthetic data only** (never real student data in dev or demo, per DPDP).
 - At the demo, ask for low-commitment inputs: blank samples of their **report card, attendance register and timetable formats**, and their exam pattern. These directly shape Phases 5–7.
 - From then on, give short demos at the end of each phase. UAT on production happens in Phase 8, after a data-processing agreement and parental-consent notices are in place.
 
-### Phase 0 — Foundations
+### Phase 0 — Foundations ✅ (completed 2026-10-29)
+
 **Goal:** a walking skeleton deployed end-to-end.
+
+> **As built:** Hangfire moves to Phase 1 (first background job: emails). Gotenberg and object storage move to Phase 3 (first PDFs and uploads), where the S3-compatible store for local development will also be chosen. Code coverage reporting arrives with the first domain logic in Phase 1.
+
 - Monorepo structure, `docker compose` for local development (PostgreSQL, MinIO, Mailpit, Gotenberg; Redis optional)
 - .NET 10 solution: API host, SharedKernel, Infrastructure, one **module template** (Contracts + module + tests), central package management
 - 12-factor configuration (all settings from environment variables), health checks, OpenAPI + Scalar, Serilog + OpenTelemetry
@@ -293,7 +306,9 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 - **Exit:** `docker compose up` gives a running app locally at `demo.localhost`, CI is green, and "hello" renders from API → UI.
 
 ### Phase 1 — Tenancy, Identity & Audit
+
 **Requirements:** PLT-01…09, IAM-01…12, AUD-01…03, NTF-01
+
 - Organisation & Branch entities, subdomain tenant-resolution middleware, `ITenantOwned` + EF named query filters, **RLS policies** and the connection interceptor
 - ASP.NET Core Identity (Argon2id hasher), permission catalogue, roles, branch-scoped role assignments, policy-based authorization handlers
 - Login/logout, invite, password reset, lockout, session management, TOTP MFA for admins
@@ -304,7 +319,9 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 - **Exit:** two demo orgs exist. Users in org A cannot see anything from org B (proved by tests), and role-based menus work.
 
 ### Phase 2 — Academic Structure, Board Profiles & Staff
+
 **Requirements:** ACD-01…12, BRD-01…05, STF-01…05
+
 - Board registry and profile loader. **CBSE profile**: classes and subjects (grading & schemes are completed in Phase 6)
 - Org level: academic years & terms, shared calendar, classes, subjects, class-subject mapping with electives, streams
 - Branch level: sections, class teachers, local holidays, rooms
@@ -314,7 +331,9 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 - **Exit:** a new organisation applies the CBSE profile, sets up a shared year, and each branch completes its sections and teacher allocation through the UI.
 
 ### Phase 3 — Student Information System
+
 **Requirements:** SIS-01…15
+
 - Student & guardian models, sibling linking, admission-number generator
 - Enrolment, roll numbers, lifecycle statuses
 - CSV/Excel bulk import engine (reusable: validate → preview → commit, async)
@@ -324,19 +343,24 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 - **Exit:** a real-sized school (~1,500 students) can be imported, browsed and promoted to the next year.
 
 ### Phase 4 — Timetable
+
 **Requirements:** TT-01…07
+
 - Bell schedules, section timetable builder (grid UI), clash detection
 - Teacher & branch views, PDF export, substitutions, versioning
 - **Exit:** a full branch timetable is built with zero clashes, and teachers see their own schedule.
 
 ### ★ Demo Milestone — Pilot School
+
 - Deploy a demo instance on a small VPS, branded for the pilot school, filled with synthetic data
 - Scripted walkthrough: org setup → branches → sections → students → timetable → teacher's day view
 - Collect blank format samples and exam-pattern details, and agree on a feedback cadence
 - **Exit:** the school agrees to pilot, and the format samples are in hand.
 
 ### Phase 5 — Period Attendance & Analytics
+
 **Requirements:** ATT-01…15, NFR-PRF-05…06
+
 - Attendance sessions per timetable period, with substitution-aware marking
 - Mobile-first marking UI with carry-over from the previous period. Daily mode for configured classes
 - Day status derivation rule (ATT-10), lock window via scheduled task, audited edits
@@ -347,7 +371,9 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 - **Exit:** a teacher marks a period on a phone in under 20 s, the monthly register prints correctly, and the org-wide yearly ranking returns in < 3 s.
 
 ### Phase 6 — Exams & Assessment
+
 **Requirements:** EXM-01…14, BRD-03…05 (completion)
+
 - Org-level assessment schemes, components and weightages. Complete the CBSE profile with its scheme presets and result rules
 - Grading scales (scholastic & co-scholastic), shipped through the CBSE profile
 - Pluggable result-rule strategies per board
@@ -358,13 +384,17 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 - **Exit:** a full term's marks are entered and locked, and computed results match a hand-verified spreadsheet for sample students, using the pilot school's actual exam pattern.
 
 ### Phase 7 — Report Cards & Dashboards
+
 **Requirements:** RC-01…04, DSH-01…04, NTF-02
+
 - Report-card HTML templates (term & annual) modelled on the pilot school's format, async bulk PDF generation, versioned storage
 - Branch, organisation and teacher dashboards. Exports
 - **Exit:** 1,000 report cards are generated in < 10 min and pass a print check, and dashboards show correct live numbers.
 
 ### Phase 8 — Hardening & Production Launch
+
 **Requirements:** all NFRs, AUD-04…05
+
 - Security review (OWASP ASVS L2 checklist), dependency audit, penetration test of auth & tenancy
 - DPDP: privacy notice, data-subject export/erase, retention jobs, breach runbook. CERT-In log retention
 - Performance tests against NFR-PRF targets, query optimisation, caching
@@ -406,6 +436,7 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 ---
 
 ## 7. Immediate Next Steps
+
 1. ~~Confirm branch-local holidays (ACD-12)~~. Confirmed.
 2. ~~Confirm the tech stack~~. Confirmed: .NET 10 + React/TS (ADR-001).
-3. Start **Phase 0 — Foundations**.
+3. ~~Start Phase 0 — Foundations~~. Done. Next: **Phase 1 — Tenancy, Identity & Audit**.

@@ -16,19 +16,21 @@ A production-grade, multi-tenant School Management System (SMS), offered as SaaS
 Release 1 (MVP) digitises the **academic core** of a school: structure, students, staff, timetable, attendance, exams and report cards.
 
 ### 1.1 Goals
+
 - Replace registers, spreadsheets and hand-made report cards with one system of record.
 - Give group management a consolidated view across branches.
 - Be secure and compliant from the start, since the system holds children's personal data.
 - Have an architecture that can grow into a multi-school SaaS without a rewrite.
 
 ### 1.2 Non-goals for Release 1
+
 Fees and payments, parent/student logins, SMS/WhatsApp messaging, HR/payroll, library, transport, hostel, LMS, mobile apps. These are planned for later releases (see §4).
 
 ---
 
 ## 2. Organisational Model (Tenancy)
 
-```
+```text
 Platform (SaaS operator — you)
 ├── Board profiles  (CBSE in R1; ICSE, State boards … added as data packs)
 └── Organisation  (tenant — a school group, or a single school)
@@ -282,6 +284,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 ## 6. Non-Functional Requirements
 
 ### 6.1 Security
+
 | ID | Requirement |
 |---|---|
 | NFR-SEC-01 | Follow **OWASP ASVS Level 2** as the baseline security standard. |
@@ -295,6 +298,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | NFR-SEC-09 | Dependency and container vulnerability scanning in CI. A security review before each release. |
 
 ### 6.2 Privacy & Regulatory (India)
+
 | ID | Requirement |
 |---|---|
 | NFR-PRV-01 | **DPDP Act 2023**: students are children (<18), so **verifiable parental consent** is required to process their data (see SIS-15). Collect only data needed for the stated purpose. No tracking, behavioural monitoring or targeted advertising directed at children. |
@@ -306,6 +310,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | NFR-PRV-07 | *(R2, Fees)* Use an RBI-authorised payment aggregator. Never store card data (PCI DSS scope stays with the PA). |
 
 ### 6.3 Performance & Scale
+
 | ID | Requirement |
 |---|---|
 | NFR-PRF-01 | API p95 latency < 300 ms for standard reads/writes at design load. |
@@ -316,6 +321,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | NFR-PRF-06 | Period attendance volume at design load: ~15,000 students × 8 periods × 220 days ≈ **26M entries per year**. Year-long attendance rankings (ATT-12) return in < 3 s for a whole organisation. |
 
 ### 6.4 Reliability & Operations
+
 | ID | Requirement |
 |---|---|
 | NFR-OPS-01 | Availability target 99.5% (R1), 99.9% (SaaS GA). |
@@ -327,6 +333,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | NFR-OPS-07 | Product name, base domain and branding are configuration values, not hard-coded. |
 
 ### 6.5 Usability & Accessibility
+
 | ID | Requirement |
 |---|---|
 | NFR-UX-01 | Responsive web app. Teacher workflows (attendance, marks) are fully usable on a low-end Android phone browser. |
@@ -335,6 +342,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | NFR-UX-04 | Indian conventions: DD/MM/YYYY, IST, Indian numbering where relevant, Apr–Mar academic year default. |
 
 ### 6.6 Maintainability & Quality
+
 | ID | Requirement |
 |---|---|
 | NFR-MNT-01 | Modular monolith with clear module boundaries (see plan). |
@@ -373,12 +381,13 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 
 ## 9. Assumptions & Decisions
 
-**Assumptions**
+### Assumptions
+
 - Parents and students do not log in during R1. Report cards are printed or shared as PDFs by the school.
 - One currency (INR) and one country (India) until SaaS expansion.
 - All branches of one organisation follow the same board. The data model still allows a branch-level override later, for groups with mixed boards.
 
-**Decisions (resolved 2026-10-29)**
+### Decisions (resolved 2026-10-29)
 
 | # | Question | Decision | Reflected in |
 |---|---|---|---|
@@ -391,5 +400,6 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | 7 | Branch-local holidays | Confirmed: branches can add local holidays on top of the shared calendar. | ACD-12 |
 | 8 | Tech stack | .NET 10 (ASP.NET Core) backend, React + TypeScript frontend, PostgreSQL. | Plan §1, ADR-001 |
 
-**Still open**
+### Still open
+
 - Product name and domain: decide before Phase 8.

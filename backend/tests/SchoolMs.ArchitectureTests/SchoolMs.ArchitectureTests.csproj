@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- References the host so every application assembly is copied to the output folder for inspection. -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SchoolMs.Api\SchoolMs.Api.csproj" />
+  </ItemGroup>
+
+</Project>

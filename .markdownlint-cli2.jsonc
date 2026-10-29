@@ -1,0 +1,12 @@
+{
+  "config": {
+    "default": true,
+    // Long lines are fine in prose and tables.
+    "MD013": false,
+    // Table pipe alignment is cosmetic and fights with editors.
+    "MD060": false,
+    // Repeated headings are fine in different sections (e.g. "Context" in each ADR).
+    "MD024": { "siblings_only": true }
+  },
+  "ignores": ["**/node_modules/**", "frontend/dist/**"]
+}
