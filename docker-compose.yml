@@ -16,6 +16,9 @@ x-api: &api
     ASPNETCORE_ENVIRONMENT: Development
     # The application role: row-level security always applies (ADR-0002).
     ConnectionStrings__Database: Host=postgres;Port=5432;Database=schoolms;Username=schoolms_app;Password=app_dev
+    # Links in emails point to the web container; email goes to Mailpit.
+    App__PublicOrigin: http://localhost:8080
+    Smtp__Host: mailpit
 
 services:
   postgres:

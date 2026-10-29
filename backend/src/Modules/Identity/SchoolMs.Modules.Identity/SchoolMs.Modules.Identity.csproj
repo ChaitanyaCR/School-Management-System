@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Folders: Domain/ (entities, rules), Application/ (use-case handlers), Infrastructure/ (DbContext, queries),
+    Endpoints/ (HTTP). Other modules may only reference SchoolMs.Modules.Identity.Contracts.
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\SchoolMs.Infrastructure\SchoolMs.Infrastructure.csproj" />
+    <ProjectReference Include="..\SchoolMs.Modules.Identity.Contracts\SchoolMs.Modules.Identity.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
+    <PackageReference Include="NSec.Cryptography" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Infrastructure\Email\Templates\*.liquid" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="SchoolMs.Modules.Identity.UnitTests" />
+    <InternalsVisibleTo Include="SchoolMs.IntegrationTests" />
+    <!-- Lets NSubstitute mock internal interfaces in unit tests. -->
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+</Project>

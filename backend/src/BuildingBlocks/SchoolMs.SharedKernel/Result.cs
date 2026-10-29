@@ -27,6 +27,10 @@ public class Result
     public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
 
     public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
+
+#pragma warning disable CA2225 // See Result<TValue>: Failure is the named alternative.
+    public static implicit operator Result(Error error) => Failure(error);
+#pragma warning restore CA2225
 }
 
 /// <summary>Outcome carrying a value on success.</summary>

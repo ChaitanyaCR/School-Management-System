@@ -15,6 +15,20 @@
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.20.1" />
     <PackageVersion Include="Npgsql.DependencyInjection" Version="10.0.3" />
   </ItemGroup>
+  <ItemGroup Label="Background jobs &amp; email">
+    <!-- Hangfire and Hangfire.PostgreSql are LGPL-3.0: used unmodified as libraries, which the licence permits. -->
+    <PackageVersion Include="Hangfire.AspNetCore" Version="1.8.25" />
+    <PackageVersion Include="Hangfire.PostgreSql" Version="1.21.1" />
+    <!-- Hangfire's minimum (11.0.1) has a known vulnerability (GHSA-5crp-9r3c-p9vr); pinned to a fixed version. -->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="MailKit" Version="4.18.2" />
+    <PackageVersion Include="Fluid.Core" Version="2.40.0" />
+  </ItemGroup>
+  <ItemGroup Label="Security">
+    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="10.0.14" />
+    <!-- Argon2id password hashing through libsodium (ADR-0003, NFR-SEC-03). -->
+    <PackageVersion Include="NSec.Cryptography" Version="26.4.0" />
+  </ItemGroup>
   <ItemGroup Label="Persistence">
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.14" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.14" />
