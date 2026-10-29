@@ -6,6 +6,8 @@ using SchoolMs.Api.Endpoints;
 using SchoolMs.Infrastructure.Modules;
 using SchoolMs.Infrastructure.Observability;
 using SchoolMs.Infrastructure.Persistence;
+using SchoolMs.Infrastructure.Tenancy;
+using SchoolMs.SharedKernel;
 using Serilog;
 using Serilog.Events;
 
@@ -19,8 +21,10 @@ if (Assembly.GetEntryAssembly()?.GetName().Name == "GetDocument.Insider")
 }
 
 builder.AddObservability(serviceName: "schoolms-api");
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddAppOptions(builder.Configuration);
 builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddTenantResolution(builder.Configuration[$"{AppOptions.SectionName}:{nameof(AppOptions.BaseDomain)}"] ?? "localhost");
 builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi("v1", options => options.AddDocumentTransformer((document, _, _) =>
 {
@@ -31,12 +35,23 @@ builder.Services.AddModules(builder.Configuration, AppModules.All);
 
 var app = builder.Build();
 
+if (await HostCommands.TryRunAsync(app, args))
+{
+    return;
+}
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
-app.UseSerilogRequestLogging(options => options.GetLevel = (context, _, exception) =>
-    exception is not null || context.Response.StatusCode >= 500 ? LogEventLevel.Error
-    : context.Request.Path.StartsWithSegments("/health") ? LogEventLevel.Verbose
-    : LogEventLevel.Information);
+app.UseSerilogRequestLogging(options =>
+{
+    options.GetLevel = (context, _, exception) =>
+        exception is not null || context.Response.StatusCode >= 500 ? LogEventLevel.Error
+        : context.Request.Path.StartsWithSegments("/health") ? LogEventLevel.Verbose
+        : LogEventLevel.Information;
+    options.EnrichDiagnosticContext = (diagnostics, context) =>
+        diagnostics.Set("Tenant", context.RequestServices.GetRequiredService<ITenantContext>().Slug ?? "-");
+});
+app.UseTenantResolution();
 
 if (app.Configuration.GetValue<bool>($"{AppOptions.SectionName}:{nameof(AppOptions.ExposeApiDocs)}"))
 {

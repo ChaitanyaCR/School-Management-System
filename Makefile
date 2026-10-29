@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help setup deps up down api web test check format openapi module
+.PHONY: help setup deps db db-reset up down api web test check format openapi module migration
 
 help: ## List available commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -10,7 +10,14 @@ setup: ## One-time setup after cloning: git hooks, packages
 	cd frontend && npm ci
 
 deps: ## Start PostgreSQL and Mailpit (for running API/web natively)
-	docker compose up -d postgres mailpit
+	docker compose up -d --wait postgres mailpit
+
+db: deps ## Apply migrations and seed the demo organisation (demo.localhost)
+	cd backend && dotnet run --project src/SchoolMs.Api --launch-profile http -- migrate seed-demo
+
+db-reset: ## Delete the local database and recreate it from scratch
+	docker compose down -v
+	$(MAKE) db
 
 up: ## Run the full stack in Docker -> http://demo.localhost:8080
 	docker compose up --build -d
@@ -42,3 +49,8 @@ openapi: ## Regenerate the OpenAPI document and the frontend API client
 
 module: ## Scaffold a backend module: make module NAME=Students
 	backend/scripts/new-module.sh $(NAME)
+
+migration: ## Add an EF Core migration: make migration MODULE=Tenancy NAME=AddBranchAddress
+	cd backend && dotnet ef migrations add $(NAME) \
+	  --project src/Modules/$(MODULE)/SchoolMs.Modules.$(MODULE) --startup-project src/SchoolMs.Api \
+	  --context $(MODULE)DbContext --output-dir Infrastructure/Migrations

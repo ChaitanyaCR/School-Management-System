@@ -19,10 +19,11 @@ fi
 dotnet new install ./templates/module --force > /dev/null
 dotnet new schoolms-module --name "$name" --output . > /dev/null
 
+# Added in two calls so each project lands in the solution folder that mirrors its path.
 dotnet sln SchoolMs.slnx add \
   "$module_dir/SchoolMs.Modules.$name/SchoolMs.Modules.$name.csproj" \
-  "$module_dir/SchoolMs.Modules.$name.Contracts/SchoolMs.Modules.$name.Contracts.csproj" \
-  "tests/SchoolMs.Modules.$name.UnitTests/SchoolMs.Modules.$name.UnitTests.csproj" > /dev/null
+  "$module_dir/SchoolMs.Modules.$name.Contracts/SchoolMs.Modules.$name.Contracts.csproj" > /dev/null
+dotnet sln SchoolMs.slnx add "tests/SchoolMs.Modules.$name.UnitTests/SchoolMs.Modules.$name.UnitTests.csproj" > /dev/null
 dotnet add src/SchoolMs.Api/SchoolMs.Api.csproj reference \
   "$module_dir/SchoolMs.Modules.$name/SchoolMs.Modules.$name.csproj" > /dev/null
 

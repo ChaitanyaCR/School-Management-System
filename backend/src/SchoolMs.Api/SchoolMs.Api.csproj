@@ -18,10 +18,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Scalar.AspNetCore" />
+    <!-- Needed only by `dotnet ef` tooling, which uses this project as the startup project. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks\SchoolMs.Infrastructure\SchoolMs.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Tenancy\SchoolMs.Modules.Tenancy\SchoolMs.Modules.Tenancy.csproj" />
   </ItemGroup>
 
 </Project>

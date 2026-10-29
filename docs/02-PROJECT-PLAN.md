@@ -309,6 +309,16 @@ Effort is indicative, for **one full-time developer working with AI assistance**
 
 **Requirements:** PLT-01…09, IAM-01…12, AUD-01…03, NTF-01
 
+Delivered in slices, each fully tested before the next:
+
+| Slice | Scope | Status |
+|---|---|---|
+| 1 | EF Core per-module DbContexts, Tenancy module (organisations, branches), subdomain resolution, suspension, query filter + save guard, RLS with separate migrator/app DB roles, `migrate`/`seed-demo` commands, isolation tests | ✅ Done 2026-10-29 |
+| 2 | Identity: users, Argon2id, cookie sessions + antiforgery, lockout, invites, password reset, transactional email (Hangfire + SMTP) | Next |
+| 3 | Authorization: permission catalogue, built-in roles, branch-scoped assignments, policies, endpoint-level isolation harness | |
+| 4 | Audit log (append-only), login/permission auditing | |
+| 5 | Admin UI (platform: organisations; org: branches, users), branch switcher, TOTP MFA, session management | |
+
 - Organisation & Branch entities, subdomain tenant-resolution middleware, `ITenantOwned` + EF named query filters, **RLS policies** and the connection interceptor
 - ASP.NET Core Identity (Argon2id hasher), permission catalogue, roles, branch-scoped role assignments, policy-based authorization handlers
 - Login/logout, invite, password reset, lockout, session management, TOTP MFA for admins

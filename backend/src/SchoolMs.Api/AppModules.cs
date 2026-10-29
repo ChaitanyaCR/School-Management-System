@@ -1,4 +1,5 @@
 using SchoolMs.Infrastructure.Modules;
+using SchoolMs.Modules.Tenancy;
 
 namespace SchoolMs.Api;
 
@@ -7,6 +8,7 @@ internal static class AppModules
 {
     public static readonly IReadOnlyList<IModule> All =
     [
-        // Modules are added here as phases deliver them (Phase 1: Tenancy, Identity, Audit).
+        new TenancyModule(),
+        // Modules are added here as phases deliver them.
     ];
 }

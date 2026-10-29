@@ -11,4 +11,9 @@
     <ProjectReference Include="..\..\src\SchoolMs.Api\SchoolMs.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The same role setup as local development, so tests run under real RLS conditions. -->
+    <None Include="..\..\..\infra\postgres\init\*.sql" Link="postgres-init\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
