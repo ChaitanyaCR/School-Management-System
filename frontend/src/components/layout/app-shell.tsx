@@ -7,9 +7,10 @@ const FALLBACK_PRODUCT_NAME = 'School Management System';
 
 /**
  * Page frame: top bar with the organisation served at this subdomain (or the product name on the bare
- * domain) and the content area. Branding comes from the API, so it is configuration, not code.
+ * domain), optional actions on the right (e.g. the user menu), and the content area. Branding comes from
+ * the API, so it is configuration, not code.
  */
-export function AppShell({ children }: { children: ReactNode }) {
+export function AppShell({ children, actions }: { children: ReactNode; actions?: ReactNode }) {
   const { data: info } = useGetSystemInfo();
   // 404 on the bare domain is expected (no organisation), so don't retry.
   const { data: organisation } = useGetCurrentOrganisation({ query: { retry: false } });
@@ -29,11 +30,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             <GraduationCap className="size-6 shrink-0 text-primary" aria-hidden />
             <span className="truncate">{title}</span>
           </Link>
-          {organisation && (
-            <span className="ml-auto hidden text-sm text-muted-foreground sm:inline">
-              {productName}
-            </span>
-          )}
+          <div className="ml-auto flex items-center gap-4">
+            {organisation && (
+              <span className="hidden text-sm text-muted-foreground md:inline">{productName}</span>
+            )}
+            {actions}
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">{children}</main>

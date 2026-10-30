@@ -9,6 +9,15 @@ namespace SchoolMs.Infrastructure.Persistence;
 /// <summary>A module's DbContext, with a way to build it on the migrator connection.</summary>
 public sealed record ModuleDbContextRegistration(Type ContextType, Func<IServiceProvider, string, DbContext> CreateForMigration);
 
+/// <summary>
+/// Creates database objects that are not EF Core migrations (e.g. the background job tables). Runs during
+/// <c>migrate</c>, after the module migrations, as the migrator role. Must be idempotent.
+/// </summary>
+public interface IDatabaseInstaller
+{
+    Task InstallAsync(string migrationsConnectionString, CancellationToken cancellationToken);
+}
+
 /// <summary>Runs before any app traffic: e.g. demo data. Implemented by modules that need it.</summary>
 public interface IDataSeeder
 {
@@ -48,7 +57,10 @@ public static class ModuleDbContextExtensions
         return services;
     }
 
-    /// <summary>Applies pending migrations of every module, in registration order, as the migrator role.</summary>
+    /// <summary>
+    /// Applies pending migrations of every module, in registration order, then runs every
+    /// <see cref="IDatabaseInstaller"/>; all as the migrator role.
+    /// </summary>
     public static async Task MigrateModulesAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         var connectionString = services.GetRequiredService<IConfiguration>().GetConnectionString(MigrationsConnectionStringName);
@@ -63,6 +75,11 @@ public static class ModuleDbContextExtensions
         {
             await using var context = registration.CreateForMigration(scope.ServiceProvider, connectionString);
             await context.Database.MigrateAsync(cancellationToken);
+        }
+
+        foreach (var installer in scope.ServiceProvider.GetServices<IDatabaseInstaller>())
+        {
+            await installer.InstallAsync(connectionString, cancellationToken);
         }
     }
 

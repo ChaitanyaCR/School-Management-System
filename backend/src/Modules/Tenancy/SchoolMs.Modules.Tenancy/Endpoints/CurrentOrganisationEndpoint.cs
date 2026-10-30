@@ -18,6 +18,7 @@ internal static class CurrentOrganisationEndpoint
 
     public static void MapCurrentOrganisation(this IEndpointRouteBuilder endpoints) =>
         endpoints.MapGet("/current", HandleAsync)
+            .AllowAnonymous()
             .WithName("GetCurrentOrganisation")
             .WithSummary("The organisation for the current subdomain.")
             .Produces<CurrentOrganisationResponse>()

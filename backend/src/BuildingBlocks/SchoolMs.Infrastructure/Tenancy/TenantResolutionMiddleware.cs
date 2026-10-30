@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
+using SchoolMs.Infrastructure.Http;
 using Serilog.Context;
 
 namespace SchoolMs.Infrastructure.Tenancy;
@@ -70,8 +71,7 @@ public sealed class TenantResolutionMiddleware(
     public static string CacheKey(string slug) => $"tenant:{slug}";
 
     private static Task WriteProblemAsync(HttpContext context, int status, string code, string title) =>
-        Results.Problem(statusCode: status, title: title, extensions: new Dictionary<string, object?> { ["code"] = code })
-            .ExecuteAsync(context);
+        ApiProblems.Create(status, code, title).ExecuteAsync(context);
 }
 
 public sealed record TenantResolutionOptions(string BaseDomain);

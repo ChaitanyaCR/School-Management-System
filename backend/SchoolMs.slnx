@@ -7,6 +7,10 @@
     <Project Path="src/BuildingBlocks/SchoolMs.SharedKernel/SchoolMs.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Identity/">
+    <Project Path="src/Modules/Identity/SchoolMs.Modules.Identity.Contracts/SchoolMs.Modules.Identity.Contracts.csproj" />
+    <Project Path="src/Modules/Identity/SchoolMs.Modules.Identity/SchoolMs.Modules.Identity.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Tenancy/">
     <Project Path="src/Modules/Tenancy/SchoolMs.Modules.Tenancy.Contracts/SchoolMs.Modules.Tenancy.Contracts.csproj" />
     <Project Path="src/Modules/Tenancy/SchoolMs.Modules.Tenancy/SchoolMs.Modules.Tenancy.csproj" />
@@ -14,6 +18,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/SchoolMs.ArchitectureTests/SchoolMs.ArchitectureTests.csproj" />
     <Project Path="tests/SchoolMs.IntegrationTests/SchoolMs.IntegrationTests.csproj" />
+    <Project Path="tests/SchoolMs.Modules.Identity.UnitTests/SchoolMs.Modules.Identity.UnitTests.csproj" />
     <Project Path="tests/SchoolMs.Modules.Tenancy.UnitTests/SchoolMs.Modules.Tenancy.UnitTests.csproj" />
     <Project Path="tests/SchoolMs.SharedKernel.UnitTests/SchoolMs.SharedKernel.UnitTests.csproj" />
   </Folder>

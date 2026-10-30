@@ -314,10 +314,12 @@ Delivered in slices, each fully tested before the next:
 | Slice | Scope | Status |
 |---|---|---|
 | 1 | EF Core per-module DbContexts, Tenancy module (organisations, branches), subdomain resolution, suspension, query filter + save guard, RLS with separate migrator/app DB roles, `migrate`/`seed-demo` commands, isolation tests | ✅ Done 2026-10-29 |
-| 2 | Identity: users, Argon2id, cookie sessions + antiforgery, lockout, invites, password reset, transactional email (Hangfire + SMTP) | Next |
-| 3 | Authorization: permission catalogue, built-in roles, branch-scoped assignments, policies, endpoint-level isolation harness | |
+| 2 | Identity: users, Argon2id, cookie sessions + antiforgery, lockout, invites, password reset, transactional email (Hangfire + SMTP) | ✅ Done 2026-10-29 |
+| 3 | Authorization: permission catalogue, built-in roles, branch-scoped assignments, policies, endpoint-level isolation harness | Next |
 | 4 | Audit log (append-only), login/permission auditing | |
 | 5 | Admin UI (platform: organisations; org: branches, users), branch switcher, TOTP MFA, session management | |
+
+> **As built (slice 2):** accounts are per organisation, and sign-in accepts an email address or an Indian mobile number (SMS OTP waits for an SMS provider and DLT registration). Until slice 3, any signed-in user may send invitations; slice 3 limits this to administrators. Background jobs run inside the API process (`Jobs:RunServer`); a separate worker container is added when job volume needs it. See [ADR-0003](adr/0003-authentication.md) for the security details.
 
 - Organisation & Branch entities, subdomain tenant-resolution middleware, `ITenantOwned` + EF named query filters, **RLS policies** and the connection interceptor
 - ASP.NET Core Identity (Argon2id hasher), permission catalogue, roles, branch-scoped role assignments, policy-based authorization handlers
