@@ -399,6 +399,7 @@ Priority uses **MoSCoW**: **M** = Must, **S** = Should, **C** = Could. Every req
 | 6 | Pilot school | A school is available. They will commit to testing after a demo, so a demo milestone is planned early. | Plan §4 (Demo milestone) |
 | 7 | Branch-local holidays | Confirmed: branches can add local holidays on top of the shared calendar. | ACD-12 |
 | 8 | Tech stack | .NET 10 (ASP.NET Core) backend, React + TypeScript frontend, PostgreSQL. | Plan §1, ADR-001 |
+| 9 | User accounts across organisations | Accounts are per organisation: the same email address can hold separate, unrelated accounts in two school groups. Staff sign in with email or mobile number plus password. SMS OTP comes later (needs an SMS provider and TRAI DLT registration). Breached passwords are checked with Have I Been Pwned (k-anonymity, switchable off). | IAM-01, IAM-04, ADR-0003 |
 
 ### Still open
 

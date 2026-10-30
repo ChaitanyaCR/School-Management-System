@@ -2,7 +2,7 @@
 # Web entry point: Caddy serves the built SPA and reverse-proxies /api and /health to the API.
 # Build context: repository root.
 
-FROM node:25-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --no-audit --no-fund

@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BuildingBlocks\SchoolMs.Infrastructure\SchoolMs.Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\Tenancy\SchoolMs.Modules.Tenancy\SchoolMs.Modules.Tenancy.csproj" />
+    <ProjectReference Include="..\Modules\Identity\SchoolMs.Modules.Identity\SchoolMs.Modules.Identity.csproj" />
   </ItemGroup>
 
 </Project>

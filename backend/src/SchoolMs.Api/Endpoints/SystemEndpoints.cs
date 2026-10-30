@@ -1,6 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.Options;
-using SchoolMs.Api.Configuration;
+using SchoolMs.Infrastructure.Configuration;
 
 namespace SchoolMs.Api.Endpoints;
 
@@ -17,6 +17,7 @@ internal static class SystemEndpoints
     {
         api.MapGet("/system/info", (IOptions<AppOptions> options, IHostEnvironment environment) =>
                 TypedResults.Ok(new SystemInfoResponse(options.Value.ProductName, Version, environment.EnvironmentName)))
+            .AllowAnonymous()
             .WithName("GetSystemInfo")
             .WithTags("system")
             .WithSummary("Product name, version and environment.");

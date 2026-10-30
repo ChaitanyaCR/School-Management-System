@@ -26,6 +26,24 @@ export default defineConfig([
     },
   },
   {
+    // TanStack Router signals redirects and not-found by throwing its own objects.
+    files: ['src/routes/**/*.tsx'],
+    rules: {
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        {
+          allow: [
+            {
+              from: 'package',
+              package: '@tanstack/router-core',
+              name: ['Redirect', 'NotFoundError'],
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     // Route files export `Route`; shadcn/ui files export variant helpers next to components.
     files: ['src/routes/**/*.tsx', 'src/components/ui/**/*.tsx'],
     rules: { 'react-refresh/only-export-components': 'off' },

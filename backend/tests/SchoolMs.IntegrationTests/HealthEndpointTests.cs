@@ -1,6 +1,4 @@
 using System.Net;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.Testing;
 using SchoolMs.IntegrationTests.Infrastructure;
 
 namespace SchoolMs.IntegrationTests;
@@ -32,11 +30,11 @@ public class HealthEndpointTests(ApiFactory factory)
     [Fact]
     public async Task Ready_WithDatabaseDown_ReturnsServiceUnavailable()
     {
-        await using var unreachableDb = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        // Same configuration as the shared factory, except the database. Port 1 on loopback refuses immediately.
+        await using var unreachableDb = factory.WithWebHostBuilder(builder =>
         {
-            builder.UseEnvironment("Testing");
-            // Port 1 on loopback: connection is refused immediately.
             builder.UseSetting("ConnectionStrings:Database", "Host=127.0.0.1;Port=1;Timeout=2");
+            builder.UseSetting("Jobs:RunServer", "false");
         });
         using var client = unreachableDb.CreateClient();
 

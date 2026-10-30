@@ -17,6 +17,15 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="Fluid.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Email\Templates\*.liquid" />
   </ItemGroup>
 
   <ItemGroup>

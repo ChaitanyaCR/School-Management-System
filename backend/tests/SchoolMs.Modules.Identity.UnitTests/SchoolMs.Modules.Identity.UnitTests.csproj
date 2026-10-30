@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Identity\SchoolMs.Modules.Identity\SchoolMs.Modules.Identity.csproj" />
+  </ItemGroup>
+
+</Project>

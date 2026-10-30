@@ -6,7 +6,7 @@ A multi-tenant School Management System for school groups and standalone schools
 - **Architecture & delivery plan:** [docs/02-PROJECT-PLAN.md](docs/02-PROJECT-PLAN.md)
 - **Architecture decisions:** [docs/adr/](docs/adr/README.md)
 
-**Status:** Phase 0 (Foundations) complete. Phase 1 (Tenancy, Identity & Audit) in progress: slice 1 (tenancy and data isolation) done.
+**Status:** Phase 0 (Foundations) complete. Phase 1 (Tenancy, Identity & Audit) in progress: slices 1 (tenancy and data isolation) and 2 (sign-in, invitations, password reset) done.
 
 ## Tech stack
 
@@ -20,7 +20,7 @@ A multi-tenant School Management System for school groups and standalone schools
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- Node.js 22.12 or later
+- Node.js 22.12 or later (CI and the Docker image use Node 26 LTS)
 - Docker with Docker Compose
 - `make` (optional; each target is a plain command you can run yourself)
 
@@ -49,6 +49,17 @@ make web     # Web app on http://demo.localhost:5173 (separate terminal)
 
 `make db-reset` deletes the local database and rebuilds it. You need it after changing `infra/postgres/init/`.
 
+### Signing in locally
+
+The demo organisation has two synthetic users (development only; seeding is refused in production):
+
+| User | Email | Password |
+|---|---|---|
+| Asha Verma | `admin@demo.test` | `schoolms-demo-2026` |
+| Rahul Nair | `teacher@demo.test` | `schoolms-demo-2026` |
+
+Invitation and password reset emails are caught by Mailpit at <http://localhost:8025>. Until permissions arrive (Phase 1 slice 3), any signed-in user can invite others.
+
 | Service | URL |
 |---|---|
 | Web app (native) | <http://demo.localhost:5173> |
@@ -56,6 +67,20 @@ make web     # Web app on http://demo.localhost:5173 (separate terminal)
 | API reference (development only) | <http://localhost:5080/api/docs> |
 | Mailpit (captured emails) | <http://localhost:8025> |
 | Health | `/health/live`, `/health/ready` |
+
+## Configuration
+
+Settings come from `appsettings.json`, overridden per environment by environment variables (`Section__Key`). Real environments must set:
+
+| Setting | Example | Notes |
+|---|---|---|
+| `ConnectionStrings__Database` | `Host=…;Username=schoolms_app;…` | Application role (RLS applies) |
+| `ConnectionStrings__Migrations` | `Host=…;Username=schoolms_migrator;…` | Only for the `migrate` command |
+| `App__BaseDomain` | `example.in` | Schools are served from `{school}.example.in` |
+| `App__PublicOrigin` | `https://example.in` | Used to build links in emails |
+| `Smtp__Host`, `Smtp__Port`, `Smtp__Security`, `Smtp__Username`, `Smtp__Password`, `Smtp__FromAddress` | `email-smtp.ap-south-1.amazonaws.com`, `587`, `StartTls` | Any SMTP provider |
+
+Optional: `Identity__CheckBreachedPasswords` (default `true`), `Jobs__RunServer` (default `true`), `Jobs__WorkerCount` (default `2`). `Security__RequireSecureCookies` must stay `true` (the default) anywhere served over HTTPS.
 
 ## Common tasks
 
