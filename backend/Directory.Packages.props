@@ -21,7 +21,7 @@
     <PackageVersion Include="Hangfire.PostgreSql" Version="1.21.1" />
     <!-- Hangfire's minimum (11.0.1) has a known vulnerability (GHSA-5crp-9r3c-p9vr); pinned to a fixed version. -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageVersion Include="MailKit" Version="4.18.2" />
+    <PackageVersion Include="MailKit" Version="5.0.0" />
     <PackageVersion Include="Fluid.Core" Version="2.40.0" />
   </ItemGroup>
   <ItemGroup Label="Security">
